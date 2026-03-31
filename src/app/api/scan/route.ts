@@ -4,7 +4,7 @@ import { getWhoisData } from '@/lib/scanner/whois';
 import { getSslStatus } from '@/lib/scanner/ssl';
 import { getThreatIntel, getGeoLocation, checkAbuseIPDB, submitUrlScan, getUrlScanResult } from '@/lib/scanner/threat-intel';
 import { calculateRiskScore } from '@/lib/scanner/scoring';
-import { generateIntelBrief } from '@/lib/scanner/intel-brief';
+import { generateSecurityAssessment } from '@/lib/scanner/analysis';
 import { ScanResults } from '@/lib/types';
 
 // Simple in-memory cache for repeated scans
@@ -72,12 +72,12 @@ export async function POST(request: NextRequest) {
     };
 
     const risk_score = calculateRiskScore(results);
-    const intel_brief = generateIntelBrief({ ...results, ...risk_score });
+    const expert_analysis = generateSecurityAssessment({ ...results, ...risk_score });
 
     const finalResponse = {
       ...results,
       ...risk_score,
-      intel_brief,
+      expert_analysis,
       timestamp: new Date().toISOString(),
     } as ScanResults;
 

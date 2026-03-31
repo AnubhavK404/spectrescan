@@ -100,7 +100,7 @@ export interface ScanResults {
   explanation: string[];
   riskLevel: 'Critical' | 'High' | 'Moderate' | 'Low';
   timestamp: string;
-  intel_brief?: {
+  expert_analysis?: {
     overview: string;
     risks: string[];
     recommendation: string;

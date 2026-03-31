@@ -1,6 +1,10 @@
 import { ScanResults, WhoisData } from '../types';
 
-export function calculateRiskScore(results: Partial<ScanResults>) {
+export function calculateRiskScore(results: Partial<ScanResults>): {
+  score: number;
+  explanation: string[];
+  riskLevel: 'Critical' | 'High' | 'Moderate' | 'Low';
+} {
   let score = 0;
   const reasons: string[] = [];
 

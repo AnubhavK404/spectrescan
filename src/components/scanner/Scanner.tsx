@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Shield, AlertTriangle, CheckCircle, Globe, Lock, Activity, Terminal, Download, Share2, Camera, Database, FileText, Info } from 'lucide-react';
+import { Search, Shield, AlertTriangle, CheckCircle, Globe, Lock, Activity, Terminal, Download, Share2, Camera, Database, Info } from 'lucide-react';
 import { NetworkGraph } from '@/components/visualization/NetworkGraph';
 import { ScanResults } from '@/lib/types';
 
@@ -123,6 +123,21 @@ export const Scanner = () => {
             SCAN
           </button>
         </form>
+        
+        {/* Loading Notice */}
+        <AnimatePresence>
+          {isScanning && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="mt-4 flex items-center gap-3 text-cyan/70 text-xs font-mono uppercase tracking-wider overflow-hidden"
+            >
+              <Info className="w-4 h-4 animate-pulse" />
+              <span>Deep Analysis in progress. Please wait ~20 seconds for full intelligence retrieval...</span>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </motion.div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -201,31 +216,31 @@ export const Scanner = () => {
               >
                 <NetworkGraph data={results} />
                 
-                {/* Intelligence Brief */}
-                {results.intel_brief && (
+                {/* Expert Security Analysis */}
+                {results.expert_analysis && (
                   <div className="p-6 border-t border-slate-700 bg-cyan/5">
                     <div className="flex items-center gap-3 mb-4">
                       <div className="p-2 bg-cyan/10 rounded-lg">
-                        <FileText className="w-6 h-6 text-cyan" />
+                        <Shield className="w-6 h-6 text-cyan" />
                       </div>
                       <div>
-                        <h3 className="text-cyan font-bold leading-none">INTELLIGENCE BRIEF</h3>
-                        <p className="text-[10px] text-slate-500 uppercase tracking-widest mt-1">Expert Assessment</p>
+                        <h3 className="text-cyan font-bold leading-none">EXECUTIVE SECURITY ANALYSIS</h3>
+                        <p className="text-[10px] text-slate-500 uppercase tracking-widest mt-1">Specialized Intelligence Assessment</p>
                       </div>
                     </div>
                     
                     <div className="space-y-6">
                       <p className="text-sm text-slate-300 leading-relaxed font-medium italic">
-                        &quot;{results.intel_brief.overview}&quot;
+                        &quot;{results.expert_analysis.overview}&quot;
                       </p>
                       
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-3">
                           <h4 className="text-[10px] text-slate-500 uppercase tracking-widest font-bold flex items-center gap-2">
-                            <AlertTriangle className="w-3 h-3 text-yellow-500" /> Critical Risks
+                            <AlertTriangle className="w-3 h-3 text-yellow-500" /> Detected Risk Factors
                           </h4>
                           <ul className="space-y-2">
-                            {results.intel_brief.risks.map((risk, i) => (
+                            {results.expert_analysis.risks.map((risk, i) => (
                               <li key={i} className="text-xs text-slate-400 flex gap-2">
                                 <span className="text-cyan">•</span>
                                 <span>{risk}</span>
@@ -236,10 +251,10 @@ export const Scanner = () => {
                         
                         <div className="p-4 rounded-xl border border-cyan/20 bg-cyan/5">
                           <h4 className="text-[10px] text-cyan uppercase tracking-widest font-bold flex items-center gap-2 mb-3">
-                            <Info className="w-3 h-3" /> Recommendation
+                            <Info className="w-3 h-3" /> Professional Recommendation
                           </h4>
                           <p className="text-xs text-slate-300 font-bold leading-relaxed">
-                            {results.intel_brief.recommendation}
+                            {results.expert_analysis.recommendation}
                           </p>
                         </div>
                       </div>

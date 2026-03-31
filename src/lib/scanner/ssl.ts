@@ -35,18 +35,23 @@ export async function getSslStatus(domain: string): Promise<SslStatus> {
       const daysRemaining = Math.round((validTo.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
       const isValid = socket.authorized || (daysRemaining > 0 && !!cert.issuer);
 
+      const getFirstOrString = (val: string | string[] | undefined) => {
+        if (!val) return undefined;
+        return Array.isArray(val) ? val[0] : val;
+      };
+
       const result: SslStatus = {
         valid: isValid,
         validFrom: cert.valid_from,
         validTo: cert.valid_to,
         daysRemaining: daysRemaining,
-        issuer: typeof cert.issuer === 'string' ? cert.issuer : (cert.issuer.O || cert.issuer.CN || 'Unknown'),
-        subject: typeof cert.subject === 'string' ? cert.subject : (cert.subject.CN || 'Unknown'),
+        issuer: typeof cert.issuer === 'string' ? cert.issuer : (getFirstOrString(cert.issuer.O) || getFirstOrString(cert.issuer.CN) || 'Unknown'),
+        subject: typeof cert.subject === 'string' ? cert.subject : (getFirstOrString(cert.subject.CN) || 'Unknown'),
         serialNumber: cert.serialNumber || 'N/A',
         fingerprint: cert.fingerprint || 'N/A',
         protocol: protocol || undefined,
         cipher: cipher.name || undefined,
-        bits: cipher.bits || undefined,
+        bits: (cipher as any).bits || undefined,
       };
 
       socket.destroy();

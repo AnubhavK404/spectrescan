@@ -57,13 +57,11 @@ interface ConnectionProps {
 }
 
 const Connection = ({ start, end, color }: ConnectionProps) => {
-  const lineRef = useRef<THREE.Line>(null);
+  const lineRef = useRef<any>(null);
 
   useFrame(() => {
-    if (lineRef.current) {
-      // @ts-expect-error - lineRef.current.material is a material, but Line component might expose more
+    if (lineRef.current?.material) {
       if (lineRef.current.material.dashOffset !== undefined) {
-        // @ts-expect-error - dashOffset is part of the custom line material
         lineRef.current.material.dashOffset -= 0.01;
       }
     }
@@ -98,20 +96,33 @@ export const NetworkGraph = ({ data }: { data: ScanResults }) => {
       result.push({ id: 'dns-a', position: [2, 1, 0] as [number, number, number], label: `IP: ${data.dns_data.a[0]}`, color: '#4ade80' });
     }
     if (data.dns_data?.mx?.length > 0) {
-      result.push({ id: 'dns-mx', position: [2, -1, 0] as [number, number, number], label: 'MX Records', color: '#4ade80' });
+      result.push({ id: 'dns-mx', position: [2, -1, 0] as [number, number, number], label: `MX: ${data.dns_data.mx[0].exchange}`, color: '#4ade80' });
+    }
+    if (data.dns_data?.ns?.length > 0) {
+      result.push({ id: 'dns-ns', position: [1.5, -2, 0] as [number, number, number], label: `NS: ${data.dns_data.ns[0]}`, color: '#4ade80' });
     }
 
     // Threat Nodes
     if (data.threat_intel?.overallVerdict === 'Malicious') {
-      result.push({ id: 'threat', position: [-2, 1, 0] as [number, number, number], label: 'MALICIOUS', color: '#ef4444', isThreat: true });
+      result.push({ id: 'threat', position: [-2, 1.5, 0] as [number, number, number], label: 'MALICIOUS', color: '#ef4444', isThreat: true });
     } else if (data.threat_intel?.overallVerdict === 'Suspicious') {
-      result.push({ id: 'threat', position: [-2, 1, 0] as [number, number, number], label: 'SUSPICIOUS', color: '#f59e0b', isThreat: true });
+      result.push({ id: 'threat', position: [-2, 1.5, 0] as [number, number, number], label: 'SUSPICIOUS', color: '#f59e0b', isThreat: true });
     }
 
-    // SSL Node - Made static (removed Float)
+    // Risk Score Node
+    result.push({
+      id: 'score',
+      position: [-1, 2.5, 0] as [number, number, number],
+      label: `Risk: ${data.score}/100`,
+      color: data.score > 70 ? '#ef4444' : data.score > 40 ? '#f59e0b' : '#4ade80',
+      isThreat: data.score > 40,
+      isStatic: true
+    });
+
+    // SSL Node
     result.push({ 
       id: 'ssl', 
-      position: [0, 2, 0] as [number, number, number], 
+      position: [0.5, 2, 0.5] as [number, number, number], 
       label: data.ssl_status?.valid ? 'SSL Valid' : 'SSL Invalid', 
       color: data.ssl_status?.valid ? '#4ade80' : '#ef4444',
       isStatic: true
@@ -121,41 +132,9 @@ export const NetworkGraph = ({ data }: { data: ScanResults }) => {
     if (data.geo_location) {
       result.push({ 
         id: 'geo', 
-        position: [3, 0, 1] as [number, number, number], 
+        position: [3, 0.5, 0.5] as [number, number, number], 
         label: `${data.geo_location.city}, ${data.geo_location.country}`, 
         color: '#d946ef' 
-      });
-    }
-
-    // Technologies (first 3)
-    if (data.url_scan?.technologies?.length > 0) {
-      data.url_scan.technologies.slice(0, 3).forEach((tech, i) => {
-        result.push({
-          id: `tech-${i}`,
-          position: [1.5, -2, -1 + i] as [number, number, number],
-          label: tech,
-          color: '#22d3ee'
-        });
-      });
-    }
-
-    // Infrastructure / ASN
-    if (data.url_scan?.pageDetails?.asnname) {
-      result.push({
-        id: 'asn',
-        position: [3.5, 1.5, -1] as [number, number, number],
-        label: data.url_scan.pageDetails.asnname,
-        color: '#f472b6'
-      });
-    }
-
-    // Stats
-    if (data.url_scan?.stats) {
-      result.push({
-        id: 'stats-req',
-        position: [-1, -2.5, 1] as [number, number, number],
-        label: `${data.url_scan.stats.requests} Requests`,
-        color: '#fbbf24'
       });
     }
 
@@ -163,10 +142,20 @@ export const NetworkGraph = ({ data }: { data: ScanResults }) => {
     if (data.abuse_reputation && data.abuse_reputation.totalReports > 0) {
       result.push({
         id: 'abuse',
-        position: [-3, -1, 0.5] as [number, number, number],
+        position: [-2.5, -1, 0.5] as [number, number, number],
         label: `${data.abuse_reputation.totalReports} Reports`,
         color: data.abuse_reputation.abuseConfidenceScore > 50 ? '#ef4444' : '#f59e0b',
         isThreat: data.abuse_reputation.abuseConfidenceScore > 20
+      });
+    }
+
+    // URLScan Tech Node
+    if (data.url_scan?.technologies && data.url_scan.technologies.length > 0) {
+      result.push({
+        id: 'tech',
+        position: [0.5, -2, 1] as [number, number, number],
+        label: `${data.url_scan.technologies[0]} + others`,
+        color: '#22d3ee'
       });
     }
 
@@ -175,7 +164,7 @@ export const NetworkGraph = ({ data }: { data: ScanResults }) => {
 
   return (
     <div className="w-full h-[500px] relative">
-      <Canvas camera={{ position: [0, 0, 6], fov: 35 }}>
+      <Canvas camera={{ position: [0, 0, 6], fov: 45 }}>
         <ambientLight intensity={0.5} />
         <pointLight position={[10, 10, 10]} intensity={1} />
         <spotLight position={[-10, 10, 10]} angle={0.15} penumbra={1} />
@@ -200,7 +189,7 @@ export const NetworkGraph = ({ data }: { data: ScanResults }) => {
           />
         ))}
 
-        <OrbitControls enablePan={false} enableZoom={true} minDistance={3} maxDistance={10} />
+        <OrbitControls enablePan={false} enableZoom={true} minDistance={2} maxDistance={10} />
       </Canvas>
     </div>
   );
