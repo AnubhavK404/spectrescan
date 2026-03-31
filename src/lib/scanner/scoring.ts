@@ -1,9 +1,9 @@
-import { ScanResults, WhoisData } from '../types';
+import { ScanResults, RiskLevel, WhoisData } from '../types';
 
 export function calculateRiskScore(results: Partial<ScanResults>): {
   score: number;
   explanation: string[];
-  riskLevel: 'Critical' | 'High' | 'Moderate' | 'Low';
+  riskLevel: RiskLevel;
 } {
   let score = 0;
   const reasons: string[] = [];
@@ -93,9 +93,20 @@ export function calculateRiskScore(results: Partial<ScanResults>): {
   // Final Score Normalization (0-100)
   score = Math.min(Math.max(score, 0), 100);
 
+  let riskLevel: RiskLevel;
+  if (score > 70) {
+    riskLevel = 'Critical';
+  } else if (score > 40) {
+    riskLevel = 'High';
+  } else if (score > 15) {
+    riskLevel = 'Moderate';
+  } else {
+    riskLevel = 'Low';
+  }
+
   return {
     score,
     explanation: reasons.length > 0 ? reasons : ['No significant threats detected'],
-    riskLevel: score > 70 ? 'Critical' : score > 40 ? 'High' : score > 15 ? 'Moderate' : 'Low',
+    riskLevel,
   };
 }

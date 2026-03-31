@@ -1,3 +1,6 @@
+// Shared risk level type for consistent typing across the application
+export type RiskLevel = "Critical" | "High" | "Moderate" | "Low";
+
 export interface DnsRecords {
   a: string[];
   mx: { exchange: string; priority: number }[];
@@ -98,7 +101,7 @@ export interface ScanResults {
   url_scan?: UrlScanData | null;
   score: number;
   explanation: string[];
-  riskLevel: 'Critical' | 'High' | 'Moderate' | 'Low';
+  riskLevel: RiskLevel;
   timestamp: string;
   expert_analysis?: {
     overview: string;
