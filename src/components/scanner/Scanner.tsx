@@ -123,21 +123,6 @@ export const Scanner = () => {
             SCAN
           </button>
         </form>
-        
-        {/* Loading Notice */}
-        <AnimatePresence>
-          {isScanning && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="mt-4 flex items-center gap-3 text-cyan/70 text-xs font-mono uppercase tracking-wider overflow-hidden"
-            >
-              <Info className="w-4 h-4 animate-pulse" />
-              <span>Deep Analysis in progress. Please wait ~20 seconds for full intelligence retrieval...</span>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </motion.div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

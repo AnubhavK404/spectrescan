@@ -45,13 +45,8 @@ export default function Home() {
         <Scanner />
 
         {/* Footer info */}
-        <footer className="mt-24 text-center text-slate-600 text-[10px] font-mono uppercase tracking-[0.3em] space-y-4">
-          <div>
-            &copy; 2026 SPECTER-SYSTEMS // SECURE_ACCESS_GRANTED
-          </div>
-          <div className="text-cyan/40">
-            Made by <span className="text-cyan/60 font-bold">Anubhav Kumar</span>
-          </div>
+        <footer className="mt-24 text-center text-slate-600 text-xs font-mono uppercase tracking-[0.3em]">
+          &copy; 2026 SPECTER-SYSTEMS // SECURE_ACCESS_GRANTED
         </footer>
       </div>
     </main>
