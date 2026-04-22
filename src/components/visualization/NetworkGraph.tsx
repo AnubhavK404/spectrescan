@@ -6,6 +6,14 @@ import { OrbitControls, Sphere, MeshDistortMaterial, Float, Text, Line, Stars, S
 import * as THREE from 'three';
 import { ScanResults } from '@/lib/types';
 
+interface NodeProps {
+  position: [number, number, number];
+  label: string;
+  color: string;
+  isThreat?: boolean;
+  isStatic?: boolean;
+}
+
 const Node = ({ position, label, color, isThreat, isStatic, size = 0.2 }: NodeProps & { size?: number }) => {
   const meshRef = useRef<THREE.Mesh>(null);
 
